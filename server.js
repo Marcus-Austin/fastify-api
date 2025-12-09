@@ -5,25 +5,42 @@ const server = fastify();
 
 const database = new Database();
 server.post("/video", (req, res) => {
+    const {title,description,duration} = req.body;
   database.create({
-    title: "video 01",
-    description: "this is 01 video",
-    duration: 120,
+    title: title,
+    description: description,
+    duration: duration,
   });
   console.log(database.list());
   return res.status(201).send();
 });
 
-server.get("/video", () => {
-  return "hello world from server";
+server.get("/video", (req, res) => {
+    const video = database.list(search);
+    const search = req.query.search;
+    if(search){
+        return video.filter((video) => video.title.toLowerCase().includes(search.toLowerCase()));
+    }
+     console.log(video);
+      return video;
 });
 
-server.put("/video/:id", () => {
-  return "hello world from put";
+server.put("/video/:id", (req, res) => {
+  const videoid = req.params.id;
+
+  const {title,description,duration} = req.body;
+    database.update(videoid, {
+        title: title,
+        description: description,
+        duration: duration,
+      });
+      return res.status(204).send();
 });
 
-server.delete("/video/:id", () => {
-  return "hello world from delete";
+server.delete("/video/:id", (req, res) => {
+  const videoid = req.params.id;
+  database.delete(videoid);
+  return res.status(204).send();
 });
 
 server.listen({ port: 3000 }, (err) => {
